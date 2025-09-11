@@ -1,36 +1,59 @@
-import { Elysia } from "elysia";
-import { GristDocAPI } from "grist-api";
+import { Elysia, t } from "elysia";
+import { cors } from "@elysiajs/cors";
+import { addTodoList, deleteList, getList, updateList } from "./controller";
+import { TodoListFormatted, TodoListInput } from "./interface";
 
-import { addTodoList } from "./controller";
+const validateAddList = {
+  body: t.Object({
+    list: t.Object({
+      title: t.String({
+        maxLength: 100,
+      }),
+      date: t.Number(),
+    }),
+  }),
+};
 
-//Grist access
-const gristUrl = Bun.env["GRIST_DOC_URL"]!;
-if (!gristUrl) {
-  throw new Error("Missing GRIST_DOC_URL in environment variables");
-}
-const api = new GristDocAPI(gristUrl);
-
-
-// const DateToGristDate = (date: string): number => {
-//   return Math.floor(jsDate.getTime() / 1000);
-// }
-
-
-// await api.updateRecords('Todo', [
-//   {Title: 'eggsUpdate', Description: "12", id:2 },
-// ])
-
-const data = await api.fetchTable('Todo');
-
-
-console.log('first>>>', data)
+const validateUpdateList = {
+  body: t.Object({
+    list: t.Object({
+      id: t.Number(),
+      title: t.String({
+        maxLength: 100,
+      }),
+      date: t.Number(),
+    }),
+  }),
+};
+const validateDeleteList = {
+  body: t.Object({
+    id: t.Number()
+  }),
+};
 
 //Route
 const app = new Elysia()
-.get("/", () => "Hello Elysia World")
-.post("/test", ({body}) => addTodoList(body!))
-.listen(5000);
+  .use(cors())
+  .get("/", () => "Hello Elysia World")
+  .post("/api/add", ({ body }) => {
+    const listInput: TodoListInput = body.list;
+    return addTodoList(listInput);
 
+  }, validateAddList)
+  .get("/api/getList", () => {
+    return getList();
+
+  })
+  .post("/api/update", ({ body }) => {
+    const listInput: TodoListInput = body.list;
+    return updateList(listInput);
+
+  }, validateUpdateList)
+  .post("/api/delete", ({ body }) => {
+    return deleteList(body.id)
+
+  }, validateDeleteList)
+  .listen(5000);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
