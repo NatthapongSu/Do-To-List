@@ -1,7 +1,7 @@
 # Simple To-Do List with Notifications
 
 This is a simple To-Do List project built with **Next.js 15**, **Tailwind CSS 4**, and **Elysia**.  
-It supports task management with notification features.
+It supports simple task management (add, edit, and delete) with notification features.
 
 ## Tech Stack
 - [Next.js 15](https://nextjs.org/) - React framework
