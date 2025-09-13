@@ -1,6 +1,8 @@
 import React from 'react'
 import TopBar from '@/component/topBar'
 import List from '@/component/list'
+import ReminderTest from '@/component/TestNoti'
+// import TodoApp from '@/component/todo'
 
 export default function page() {
   return (
@@ -8,6 +10,11 @@ export default function page() {
       <TopBar/>
       <List/>
 
+      {/* <ReminderTest/> */}
+
     </div>
+    // <main className="min-h-screen bg-gray-100 py-8">
+    //   <TodoApp/>
+    // </main>
   )
 }

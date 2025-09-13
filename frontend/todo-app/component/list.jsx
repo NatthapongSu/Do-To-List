@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { Description, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
+import { formatToDateTimeLocal } from '@/function/utils';
 
 function List() {
   const [title, setTitle] = useState('');
@@ -11,9 +12,38 @@ function List() {
   const [editDate, setEditDate] = useState('');
   const [focusId, setFocusId] = useState(null);
   let [isOpen, setIsOpen] = useState(false)
+  const [minDateTime, setMinDateTime] = useState(null)
 
   useEffect(() => {
+
+    const now = new Date();
+    const minValue = now.toISOString().slice(0, 16);
+    setMinDateTime(minValue);
+
+    async function setupServiceWorker() {
+      if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+        alert('Your browser doesn\'t support notifications');
+        return;
+      }
+
+      try {
+        await navigator.serviceWorker.register('/sw.js');
+        const permission = await Notification.requestPermission();
+
+        if (permission === 'granted') {
+          // setIsReady(true);
+          console.log('Reminders ready!');
+        } else {
+          alert('Please allow notifications to use reminders');
+        }
+      } catch (error) {
+        console.error('Setup failed:', error);
+      }
+    }
+    setupServiceWorker();
     fetchToDoList();
+
+
   }, []);
 
   const fetchToDoList = async () => {
@@ -37,6 +67,20 @@ function List() {
           })
         })
         setList(listTemp);
+
+        // const taskDate = new Date('2025-09-12 00:54');
+        // const now = new Date();
+        // const delay = taskDate.getTime() - now.getTime();
+
+
+        // Tell service worker to show notification
+        navigator.serviceWorker.ready.then(registration => {
+          registration.active.postMessage({
+            type: 'SHOW_NOTIFICATION',
+            task: listTemp
+          });
+        });
+
 
       }
 
@@ -126,7 +170,7 @@ function List() {
   const startEdit = (list) => {
     setEditingId(list.id);
     setEditTitle(list.title);
-    setEditDate(new Date(list.date).toISOString().split('T')[0]);
+    setEditDate(formatToDateTimeLocal(list.date));
   }
 
   const saveEdit = async (id) => {
@@ -180,6 +224,14 @@ function List() {
     setEditDate('');
   }
 
+  const overDueCheck = (date) => {
+    const targetTime = new Date(date).getTime();
+    const currentTime = new Date().getTime();
+    const delay = targetTime - currentTime;
+
+    return delay <= 0
+  }
+
   return (
     <div className='flex flex-col items-center' >
       <div className="bg-white p-6 rounded-lg shadow-lg w-md">
@@ -198,11 +250,12 @@ function List() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Due Date:</label>
             <input
               className='w-full text-lg p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-              type="date"
+              type="datetime-local"
               value={date}
+              min={minDateTime}
               onChange={(e) => setDate(e.target.value)}
             />
           </div>
@@ -239,8 +292,9 @@ function List() {
                     <div>
                       <input
                         className='w-full text-lg p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                        type="date"
+                        type="datetime-local"
                         value={editDate}
+                        min={minDateTime}
                         onChange={(e) => setEditDate(e.target.value)}
                       />
                     </div>
@@ -263,11 +317,16 @@ function List() {
                   // View mode
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-gray-800 max-w-2xl overflow-auto">{list.title}</h4>
+                      <h4 className={`text-lg font-semibold max-w-2xl overflow-auto ${ overDueCheck(list.date) ? "text-red-600":"text-gray-600" }`}>{list.title}</h4>
                       {list.date && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          📅 {new Date(list.date).toLocaleDateString()}
-                        </p>
+                        <div>
+                          <span className="text-sm text-gray-600 mt-1">
+                            📅 {`${new Date(list.date).toLocaleDateString()} ${new Date(list.date).toLocaleTimeString()}`}
+                          </span>
+                          <span className="text-sm text-red-600 ml-1 font-semibold">
+                            {`${overDueCheck(list.date) ? "Overdue!" : ""}`}
+                          </span>
+                        </div>
                       )}
                     </div>
                     <div className="flex gap-2 ml-4">
