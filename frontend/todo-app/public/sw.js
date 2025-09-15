@@ -12,13 +12,24 @@ self.addEventListener("activate", () => {
   self.clients.claim(); // Take control of all pages
 });
 
+// Keep track of active timers
+let activeTimers = [];
+
 // Step 3: Listen for messages from your main app
 self.addEventListener("message", (event) => {
   console.log("Service worker received message:", event.data);
 
   if (event.data.type === "SHOW_NOTIFICATION") {
-    // Show notification
+    // Clear old timers first (avoid duplicate notifications)
+    clearAllTimers();
+
+    // Schedule new notifications
     notificationSet(event.data.task);
+  }
+
+  if (event.data.type === "CLEAR_NOTIFICATIONS") {
+    clearAllTimers();
+    console.log("All scheduled notifications cleared.");
   }
 });
 
@@ -34,11 +45,19 @@ const notificationSet = (task) => {
       return;
     }
 
-    setTimeout(() => {
+    const timerId = setTimeout(() => {
       showNotification(item.id, item.title);
     }, delay);
+
+    // Save timer so we can cancel it later
+    activeTimers.push(timerId);
   });
 };
+
+function clearAllTimers() {
+  activeTimers.forEach((id) => clearTimeout(id));
+  activeTimers = [];
+}
 
 function showNotification(id, message) {
   self.registration.showNotification("Task Reminder", {
@@ -47,20 +66,19 @@ function showNotification(id, message) {
     tag: `reminder-${id}`,
     requireInteraction: false,
   });
-
 }
 
 // Step 4: Handle what happens when user clicks the notification
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  
+
   // Focus your app
   event.waitUntil(
-    self.clients.matchAll().then(clients => {
+    self.clients.matchAll().then((clients) => {
       if (clients.length > 0) {
         clients[0].focus();
       } else {
-        self.clients.openWindow('/');
+        self.clients.openWindow("/");
       }
     })
   );
