@@ -48,7 +48,7 @@ function List() {
 
   const fetchToDoList = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getList`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/list/get`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -108,7 +108,7 @@ function List() {
         console.log('date :>> ', date);
         const d = new Date(date)
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/add`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/list/add`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ function List() {
 
     try {
       setIsOpen(false);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/delete`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/list/delete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -191,7 +191,7 @@ function List() {
 
         const d = new Date(editDate)
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/list/update`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -3,8 +3,3 @@ export interface TodoListInput {
   title: string;
   date: number;
 }
-
-export interface TodoListFormatted {
-  Title: string;
-  Date: number;
-}
