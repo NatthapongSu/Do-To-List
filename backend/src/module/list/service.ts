@@ -1,6 +1,6 @@
 import { IRecord } from "grist-api";
-import { gristApi } from "./gristApi";
-import { TodoListFormatted, TodoListInput } from "./interface";
+import { gristApi } from "../../gristApi";
+import { TodoListInput } from "../../interface/list.interface"; 
 
 export const addTodoList = async (listInput: TodoListInput) => {
   try {
