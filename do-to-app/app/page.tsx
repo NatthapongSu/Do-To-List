@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react'
 import { AddItemForm } from '@/components/AddItemForm' 
-// import { ItemsList } from './components/ItemsList'
-// import { DeleteConfirmDialog } from './components/DeleteConfirmDialog'
+import { ItemsList } from '@/components/ItemsList'
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useListItems } from '@/hooks/useListItems'
-// import type { ListItem } from './types'
+import type { ListItem } from '@/types'
 
 export default function List() {
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -42,11 +42,11 @@ export default function List() {
     await addItem(title, date)
   }
 
-  // const handleStartEdit = (item: ListItem) => {
-  //   setEditingId(item.id)
-  //   setEditTitle(item.title)
-  //   setEditDate(formatToDateTimeLocal(item.date))
-  // }
+  const handleStartEdit = (item: ListItem) => {
+    setEditingId(item.id)
+    setEditTitle(item.title)
+    setEditDate(formatToDateTimeLocal(item.date))
+  }
 
   const handleSaveEdit = async (id: string) => {
     if (editTitle.trim()) {
@@ -81,9 +81,12 @@ export default function List() {
 
   return (
     <div className='flex flex-col items-center px-4 py-6 min-h-screen bg-gray-50'>
+
+      <div className='text-5xl mb-3' > TO DO LIST </div>
+
       <AddItemForm onAddItem={handleAddItem} />
       
-      {/* <ItemsList
+      <ItemsList
         list={list}
         isLoading={isLoading}
         editingId={editingId}
@@ -101,7 +104,7 @@ export default function List() {
         isOpen={isDeleteModalOpen}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
-      /> */}
+      />
     </div>
   )
 }
