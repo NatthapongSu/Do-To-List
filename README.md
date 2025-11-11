@@ -25,5 +25,5 @@ Columns:
 - Title (String)
 - Date (DateTime)
 
-# TRY DEMO HERE
-[DEMO APP CLICK HERE](https://do-to-list-eosin.vercel.app/)
+# Try Demon Here
+[Demon App Click Here](https://do-to-list-eosin.vercel.app/)
